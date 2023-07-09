@@ -231,13 +231,12 @@ static int gm_tx_hook(CANPacket_t *to_send) {
   }
 
   // BUTTONS: used for resume spamming and cruise cancellation with stock longitudinal
-  if ((addr == 481) && (gm_pcm_cruise || gm_hw == GM_CAM)) {
+  if ((addr == 481) && (gm_pcm_cruise || (gm_hw == GM_CAM))) {
     int button = (GET_BYTE(to_send, 5) >> 4) & 0x7U;
 
-    bool allowed_btn = (button == GM_BTN_CANCEL) && cruise_engaged_prev;
+    bool allowed_btn = (button == GM_BTN_CANCEL) && (cruise_engaged_prev || gas_interceptor_detected);
     // For standard CC, allow spamming of SET / RESUME
     allowed_btn |= cruise_engaged_prev && (gm_hw == GM_CAM) && (button == GM_BTN_SET || button == GM_BTN_RESUME || button == GM_BTN_UNPRESS);
-    // TODO: With a Pedal, CC needs to be canceled
 
     if (!allowed_btn) {
       tx = 0;

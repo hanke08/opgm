@@ -80,6 +80,7 @@ To be sure that your car is completely powered down:
 
 ## Known issues
 * CC long may cause a controls mismatch error if driving under 24mph.
+* CC long does not work on 2022+ Bolt EV/EUV.
 * AOL may be broken on pedal interceptor vehicles.
 * The car must be restarted after enabling AOL in the toggles.
 * Curve hugging and laneline crossing are known issues of upstream openpilot.
