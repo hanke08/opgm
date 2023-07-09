@@ -7,8 +7,8 @@ OPGM strives to align as closely to the official openpilot as possible, while ad
 are officially unsupported. Additionally, OPGM adds some creature comforts and quality of life improvements.
 
 OPGM will be rebased on top of the official openpilot frequently to keep up with upstream changes. The latest sync was
-with commit [`56a2d5d49b`](https://github.com/commaai/openpilot/tree/56a2d5d49b248a2da3464d5b02fa0cfbba722eca) from the
-master branch. The latest build was done on June 30, 2023.
+with commit [`938a8ea695`](https://github.com/commaai/openpilot/tree/938a8ea695b256de30a9bd52bcce5076bd215677) from the
+master branch. The latest build was done on July 06, 2023.
 
 ## Features
 * Support for GM vehicles with LKAS but no ACC
@@ -80,6 +80,7 @@ To be sure that your car is completely powered down:
 
 ## Known issues
 * CC long may cause a controls mismatch error if driving under 24mph.
+* CC long does not work on 2022+ Bolt EV/EUV.
 * AOL may be broken on pedal interceptor vehicles.
 * The car must be restarted after enabling AOL in the toggles.
 * Curve hugging and laneline crossing are known issues of upstream openpilot.

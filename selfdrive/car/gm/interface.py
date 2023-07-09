@@ -6,7 +6,8 @@ from panda import Panda
 from common.conversions import Conversions as CV
 from selfdrive.car import STD_CARGO_KG, create_button_event, scale_tire_stiffness, get_safety_config
 from selfdrive.car.gm.radar_interface import RADAR_HEADER_MSG
-from selfdrive.car.gm.values import CAR, CruiseButtons, CarControllerParams, EV_CAR, CAMERA_ACC_CAR, CanBus, CC_ONLY_CAR
+from selfdrive.car.gm.values import CAR, CruiseButtons, CarControllerParams, EV_CAR, CAMERA_ACC_CAR, CanBus, \
+  CC_ONLY_CAR, GMFlags
 from selfdrive.car.interfaces import CarInterfaceBase, TorqueFromLateralAccelCallbackType, FRICTION_THRESHOLD
 from selfdrive.controls.lib.drive_helpers import get_friction
 
@@ -245,6 +246,7 @@ class CarInterface(CarInterfaceBase):
       CarInterfaceBase.configure_torque_tune(candidate, ret.lateralTuning)
 
     if ret.enableGasInterceptor:
+      ret.flags |= GMFlags.PEDAL_LONG.value
       ret.minEnableSpeed = -1
       ret.pcmCruise = False
       ret.openpilotLongitudinalControl = True
@@ -260,6 +262,7 @@ class CarInterface(CarInterfaceBase):
       ret.stoppingControl = True
 
     elif candidate in CC_ONLY_CAR:
+      ret.flags |= GMFlags.CC_LONG.value
       ret.radarUnavailable = True
       ret.experimentalLongitudinalAvailable = False
       ret.minEnableSpeed = 24 * CV.MPH_TO_MS
@@ -306,12 +309,10 @@ class CarInterface(CarInterfaceBase):
     if 0.05 < ret.vEgo < self.CP.minSteerSpeed:
       events.add(EventName.belowSteerSpeed)
 
-    # FIXME: we need to spam cancel to stop CC
-    # if self.CP.carFingerprint in CC_ONLY_CAR and not self.CP.enableGasInterceptor:
-    #   if ret.vEgo < 24. * CV.MPH_TO_MS:
-    #     events.add(EventName.speedTooLow)
+    if (self.CP.flags & GMFlags.CC_LONG.value) and ret.vEgo < self.CP.minEnableSpeed:
+      events.add(EventName.speedTooLow)
 
-    if self.CP.enableGasInterceptor and self.CP.transmissionType == TransmissionType.direct and not self.CS.single_pedal_mode:
+    if (self.CP.flags & GMFlags.PEDAL_LONG.value) and self.CP.transmissionType == TransmissionType.direct and not self.CS.single_pedal_mode:
       events.add(EventName.pedalInterceptorNoBrake)
 
     ret.events = events.to_msg()
